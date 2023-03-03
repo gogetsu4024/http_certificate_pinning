@@ -115,11 +115,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     }
 
 
-    println("httpClient.serverCertificates.size")
     httpClient.serverCertificates.forEach {
-      println(it.publicKey.toString())
-      println(it.encoded.toString())
-      println(it.publicKey.toString())
 
       sha.add(this.hashString(type, it.encoded))
     }
