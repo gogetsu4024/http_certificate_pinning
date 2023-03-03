@@ -11,6 +11,9 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import okhttp3.CertificatePinner
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URL
@@ -88,37 +91,47 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
 
   private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
-    val sha: String = this.getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    return allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }.contains(sha)
+    val sha: List<String> = this.getFingerprint(serverURL, timeout, httpHeaderArgs, type)
+    println("sha")
+    println(sha)
+    return allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }.any{ it in sha}
   }
 
   @Throws(IOException::class, NoSuchAlgorithmException::class, CertificateException::class, CertificateEncodingException::class, SocketTimeoutException::class)
-  private fun getFingerprint(httpsURL: String, connectTimeout: Int, httpHeaderArgs: Map<String, String>, type: String): String {
+  private fun getFingerprint(httpsURL: String, connectTimeout: Int, httpHeaderArgs: Map<String, String>, type: String): List<String> {
 
     val url = URL(httpsURL)
     val httpClient: HttpsURLConnection = url.openConnection() as HttpsURLConnection
     if (connectTimeout > 0)
       httpClient.connectTimeout = connectTimeout * 1000
     httpHeaderArgs.forEach { (key, value) -> httpClient.setRequestProperty(key, value) }
-
+    var sha: ArrayList<String> = ArrayList<String>()
     try {
       httpClient.connect()
     } catch (socket: SocketTimeoutException) {
-      return ""
+      return ArrayList<String>()
     } catch (io: IOException) {
-      return ""
+      return ArrayList<String>()
     }
 
-    val cert: Certificate = httpClient.serverCertificates[0] as Certificate
-    return this.hashString(type, cert.encoded)
+
+    println("httpClient.serverCertificates.size")
+    httpClient.serverCertificates.forEach {
+      println(it.publicKey.toString())
+      println(it.encoded.toString())
+      println(it.publicKey.toString())
+
+      sha.add(this.hashString(type, it.encoded))
+    }
+    return sha
   }
 
   private fun hashString(type: String, input: ByteArray) =
-          MessageDigest
-                  .getInstance(type)
-                  .digest(input)
-                  .map { String.format("%02X", it) }
-                  .joinToString(separator = "")
+    MessageDigest
+      .getInstance(type)
+      .digest(input)
+      .map { String.format("%02X", it) }
+      .joinToString(separator = "")
 
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
