@@ -11,9 +11,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import okhttp3.CertificatePinner
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URL
@@ -115,8 +112,8 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     }
 
 
+    println("httpClient.serverCertificates.size")
     httpClient.serverCertificates.forEach {
-
       sha.add(this.hashString(type, it.encoded))
     }
     return sha
