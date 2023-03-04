@@ -103,33 +103,44 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                 
                 return (.cancelAuthenticationChallenge, nil)
             }
+            let cnt : CFIndex = SecTrustGetCertificateCount(serverTrust)
+            var certificates =  [SecCertificate?]()
 
             // Set SSL policies for domain name check
             let policies: [SecPolicy] = [SecPolicyCreateSSL(true, (challenge.protectionSpace.host as CFString))]
             SecTrustSetPolicies(serverTrust, policies as CFTypeRef)
 
             // Evaluate server certificate
+          
+            
             var result: SecTrustResultType = .invalid
             SecTrustEvaluate(serverTrust, &result)
             let isServerTrusted: Bool = (result == .unspecified || result == .proceed)
-
-            let serverCertData = SecCertificateCopyData(certificate) as Data
-            var serverCertSha = serverCertData.sha256().toHexString()
-
-            if(type == "SHA1"){
-                serverCertSha = serverCertData.sha1().toHexString()
-            }
-
             var isSecure = false
-            if var fp = self.fingerprints {
-                fp = fp.compactMap { (val) -> String? in
-                    val.replacingOccurrences(of: " ", with: "")
-            }
+            
+            for i in 0..<cnt {
+                certificates.append(SecTrustGetCertificateAtIndex(serverTrust, i))
+                
+                let serverCertData = SecCertificateCopyData(certificates[i]!) as Data
+                var serverCertSha = serverCertData.sha256().toHexString()
 
-                isSecure = fp.contains(where: { (value) -> Bool in
-                    value.caseInsensitiveCompare(serverCertSha) == .orderedSame
-                })
+                if(type == "SHA1"){
+                    serverCertSha = serverCertData.sha1().toHexString()
+                }
+
+                
+                if var fp = self.fingerprints {
+                    fp = fp.compactMap { (val) -> String? in
+                        val.replacingOccurrences(of: " ", with: "")
+                }
+
+                    isSecure = fp.contains(where: { (value) -> Bool in
+                        value.caseInsensitiveCompare(serverCertSha) == .orderedSame
+                    })
+                }
+                if (isSecure) {break;}
             }
+          
 
             if isServerTrusted && isSecure {
                 flutterResult("CONNECTION_SECURE")
