@@ -89,8 +89,6 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
     val sha: List<String> = this.getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    println("sha")
-    println(sha)
     return allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }.any{ it in sha}
   }
 
