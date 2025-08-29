@@ -29,6 +29,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   private var threadExecutorService: ExecutorService? = null
   private var handler: Handler? = null
+  private var channel: MethodChannel? = null
 
   init {
     threadExecutorService = Executors.newSingleThreadExecutor()
@@ -44,8 +45,8 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
   }
 
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    val channel = MethodChannel(binding.binaryMessenger, "http_certificate_pinning")
-    channel.setMethodCallHandler(HttpCertificatePinningPlugin())
+    channel = MethodChannel(binding.binaryMessenger, "http_certificate_pinning")
+    channel?.setMethodCallHandler(this)
   }
 
 
@@ -89,7 +90,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
     val sha: List<String> = this.getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    return allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }.any{ it in sha}
+    return allowedFingerprints.map { fp -> fp.uppercase().replace("\\s".toRegex(), "") }.any{ it in sha}
   }
 
   @Throws(IOException::class, NoSuchAlgorithmException::class, CertificateException::class, CertificateEncodingException::class, SocketTimeoutException::class)
@@ -123,7 +124,13 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
       .joinToString(separator = "")
 
 
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
+  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    channel?.setMethodCallHandler(null)
+    channel = null
+    threadExecutorService?.shutdown()
+    threadExecutorService = null
+    handler = null
+  }
 
 
 }
