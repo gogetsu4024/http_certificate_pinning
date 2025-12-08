@@ -48,5 +48,4 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'io.flutter:flutter_embedding_debug:1.0.0-4c9689227c9db45aeedc9e1bb2deea6ae1f4a6e1'
 }
