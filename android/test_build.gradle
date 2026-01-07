@@ -5,8 +5,6 @@ plugins {
 repositories {
     google()
     mavenCentral()
-    // This will force trying to resolve from the old repository
-    maven { url "https://google.bintray.com/exoplayer" }
 }
 
 dependencies {
