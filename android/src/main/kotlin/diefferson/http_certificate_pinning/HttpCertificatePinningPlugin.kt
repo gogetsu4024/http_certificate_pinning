@@ -24,7 +24,7 @@ import javax.net.ssl.HttpsURLConnection
 import javax.security.cert.CertificateException
 
 /** HttpCertificatePinningPlugin */
-public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
+class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   private var threadExecutorService: ExecutorService? = null
   private var handler: Handler? = null

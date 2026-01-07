@@ -1,0 +1,19 @@
+plugins {
+    id 'com.android.library' version '8.12.1'
+}
+
+repositories {
+    google()
+    mavenCentral()
+    // This will force trying to resolve from the old repository
+    maven { url "https://google.bintray.com/exoplayer" }
+}
+
+dependencies {
+    implementation 'io.flutter:flutter_embedding_debug:1.0.0-4c9689227c9db45aeedc9e1bb2deea6ae1f4a6e1'
+}
+
+android {
+    compileSdkVersion 35
+    namespace 'test.package'
+}

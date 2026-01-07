@@ -1,31 +1,21 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
 group 'diefferson.http_certificate_pinning'
 version '1.0.3'
 
-buildscript {
-    ext.kotlin_version = '1.9.0'
+allprojects {
     repositories {
         google()
         mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.12.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        gradlePluginPortal()
     }
 }
-
-rootProject.allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 35
+    compileSdk = 36
     namespace 'diefferson.http_certificate_pinning'
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -38,14 +28,15 @@ android {
         disable 'InvalidPackage'
     }
     kotlinOptions {
-        jvmTarget = "11" // Align Kotlin with Java 17
+        jvmTarget = "17"
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20"
+    compileOnly "io.flutter:flutter_embedding_debug:1.0.0-4c9689227c9db45aeedc9e1bb2deea6ae1f4a6e1"
 }
